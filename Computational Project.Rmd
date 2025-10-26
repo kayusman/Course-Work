@@ -1,0 +1,169 @@
+---
+title: "Computational Project"
+author: "Kayode Okunola"
+date: "2024-12-13"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+# Load necessary libraries
+library(ggplot2)  # For visualization
+library(dplyr)    # For data manipulation
+library(corrplot) # For correlation analysis
+
+library(tidyverse)    # For data manipulation and visualization
+library(mgcv)         # For Generalized Additive Models (GAMs)
+library(Amelia)
+library(vtable)
+```
+
+```{r}
+data=read.csv("C:/Users/hp/Desktop/GSU/COMPUTATIONAL/HW6/data.csv")
+data= data[, c("crim", "indus", "dis", "rm", "ptratio","medv")]
+#shapiro.test(data$zn)
+# Rename columns for easier interpretation
+colnames(data) <- c("CrimeRate", "IndustrialZone","Distance","Rooms","PupilTeacherRatio","HomePrice")
+head(data)
+```
+
+```{r}
+# Check for missing values
+colSums(is.na(data))
+#visualize the missing data using the missmap
+missmap(data)
+# Initial Data Exploration
+summary(data)
+st(data)
+cor_matrix <- cor(data)
+print(cor_matrix)
+
+# Identify key variables
+# Assuming 'HomePrice' represents home prices and other columns represent neighborhood factors
+home_price <- "HomePrice" # Replace with the actual column name for home prices
+
+neighborhood_factors <- setdiff(names(data), home_price)
+
+#home_price <- data["HomePrice"]
+
+# Initial visualization: Scatterplots for each neighborhood factor vs. HomePrice
+for (factor in neighborhood_factors) {
+  ggplot(data, aes_string(x = factor, y = home_price)) +
+    geom_point(alpha = 0.5) +
+    geom_smooth(method = "loess", col = "blue") +
+    labs(title = paste("Scatterplot of", factor, "vs HomePrice"),
+         x = factor,
+         y = "Home Price") +
+    theme_minimal() #+
+    ggsave(paste0("scatter_", factor, ".jpeg"))
+}
+
+# Correlation matrix
+cor_matrix <- cor(data[, sapply(data, is.numeric)], use = "complete.obs")
+corrplot(cor_matrix, method = "color", type = "upper", tl.col = "black", tl.srt = 45)
+```
+
+```{r}
+# Fitting Generalized Additive Models (GAMs) for Non-linear
+# Home Price is the dependent variable and 'neighborhood_factors' are predictors
+gam_formula <- as.formula(
+  paste("HomePrice ~", paste(paste0("s(", neighborhood_factors, ")"), collapse = " + "))
+)
+
+# Fit the GAM model
+gam_model <- gam(gam_formula, data = data)
+
+# Summary of the model
+summary(gam_model)
+
+# Visualize Non-linear Effects
+plot(gam_model, pages = 1, rug = TRUE, se = TRUE, main = "Non-linear Effects of Factors")
+
+# Predictions for Model Evaluation
+data$PredictedPrice <- predict(gam_model)
+
+# Plot Actual vs Predicted Prices
+ggplot(data, aes(x = HomePrice, y = PredictedPrice)) +
+  geom_point(alpha = 0.5, color = "darkgreen") +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  ggtitle("Actual vs Predicted Home Prices") +
+  theme_minimal()
+
+```
+
+
+```{r}
+# Load necessary library
+library(randomForest)
+
+# Set a seed for reproducibility
+set.seed(123)
+
+# Split the data into training and testing sets (80/20 split)
+train_index <- sample(1:nrow(data), 0.8 * nrow(data))
+train_data <- data[train_index, ]
+test_data <- data[-train_index, ]
+
+# Fit Random Forest model
+rf_model <- randomForest(HomePrice ~ CrimeRate + IndustrialZone + Distance + Rooms + PupilTeacherRatio, 
+                         data = train_data, importance = TRUE, ntree = 500)
+
+# Print model summary
+print(rf_model)
+
+# Predictions on test data
+rf_predictions <- predict(rf_model, newdata = test_data)
+
+# Calculate RMSE
+rf_rmse <- sqrt(mean((rf_predictions - test_data$HomePrice)^2))
+cat("Random Forest RMSE:", rf_rmse, "\n")
+```
+
+
+```{r}
+# Scatterplot of Actual vs Predicted values
+
+test_data$RF_Predicted <- rf_predictions
+
+ggplot(test_data, aes(x = HomePrice, y = RF_Predicted)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Random Forest: Actual vs Predicted", 
+       x = "Actual Home Prices", 
+       y = "Predicted Home Prices")
+```
+
+
+
+
+```{r}
+# Calculate RMSE
+rmse_gam <- sqrt(mean((data$HomePrice - data$PredictedPrice)^2, na.rm = TRUE))
+rf_rmse <- sqrt(mean((rf_predictions - test_data$HomePrice)^2))
+
+print(paste("GAM RMSE:", rmse_gam))
+cat("Random Forest RMSE:", rf_rmse, "\n")
+```
+
+Visualization:
+
+Plot individual smooth terms for significant factors from GAM to visualize their effects on home prices.
+
+```{r}
+plot(gam_model, pages = 1)
+```
+Residual Diagnostics:
+
+Check residual plots for both models to identify areas of under-/over-prediction.
+
+```{r}
+plot(gam_model$residuals)
+```
+ Visualizing GAM Smooth Terms and Visualizing GAMs Results
+```{r}
+# Plot smooth terms for GAM model
+plot(gam_model, pages = 1, shade = TRUE, seWithMean = TRUE)
+```
+
+
