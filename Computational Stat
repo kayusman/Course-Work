@@ -1,0 +1,58 @@
+# 🧮 Computational Methods Final Project
+**Author:** Kayode Okunola  
+**Student ID:** 002845768  
+**Course:** Computational Methods  
+
+---
+
+## 📘 Introduction
+Recent advancements in statistical modeling have increased the number and complexity of analytical tools used to predict relationships between variables. However, the use of limited analytical approaches may restrict the global applicability of findings (Hegel et al., 2010).  
+This project compares two models — **Generalized Additive Model (GAM)** and **Random Forest (RF)** — to predict **non-linear relationships between neighborhood factors and home prices**.  
+
+**Key Predictors:**
+- Crime Rate  
+- Industrial Zone  
+- Distance  
+- Rooms  
+- Pupil–Teacher Ratio  
+
+We evaluate model performance and interpretability to determine the most effective approach.
+
+---
+
+## 🎯 Research Goal
+> To investigate and predict the **non-linear relationship** between neighborhood factors and home prices.
+
+---
+
+## 🧾 Data Exploration
+**Dataset:** Aggregated housing data predicting median home values in Boston suburbs.  
+**Source:** Kaggle / `sklearn.datasets`
+
+### Key Steps:
+- **Missing Value Analysis:** No missing values found (see Appendix Figure 1).
+- **Summary Statistics:**  
+  - Crime Rate: M = 3.6, SD = 8.6  
+  - Industrial Zone: M = 11, SD = 6.9  
+  - Distance: M = 3.8, SD = 2.1  
+  - Rooms: M = 6.3, SD = 0.7  
+  - Pupil–Teacher Ratio: M = 18, SD = 9.2  
+  - Home Price: M = 23, SD = 9.2  
+
+- **Correlation Findings:**
+  - Strong positive relationship: Rooms ↔ Home Price  
+  - Moderate negative relationship: Industrial Zone, Pupil–Teacher Ratio ↔ Home Price  
+  - Weak, non-linear relationship: Crime Rate, Distance ↔ Home Price  
+
+- **Scatter Plots:** Non-linear trends visible; points deviate from regression lines confirming need for non-linear modeling (Appendix Figures 3.1–3.5).
+
+---
+
+## ⚙️ Methodology
+We employed **Generalized Additive Models (GAM)** and **Random Forest (RF)** using R.
+
+### GAM Model
+- Package: `mgcv`
+- Formula:
+  ```r
+  HomePrice ~ s(CrimeRate) + s(IndustrialZone) + s(Distance) + s(Rooms) + s(PupilTeacherRatio)
