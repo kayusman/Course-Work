@@ -1,0 +1,159 @@
+# 🧪 Evaluating the Effects of Treatment Type and Age Group on Blood Glucose Levels in Patients with Diabetes  
+### A Factorial Experimental Design Study  
+
+**Authors:**  
+- Hakeem Adekunle  
+- Oladimeji Adewuyi  
+- Kayode Okunola  
+**Date:** December 2024  
+
+---
+
+## 📘 Overview
+This study explores how **treatment type** and **patient age group** affect **blood glucose levels** in diabetic patients. The work applies a **3² factorial experimental design** to test for main and interaction effects between treatment methods and age categories.
+
+---
+
+## 🎯 Research Objectives
+1. Determine whether treatment type significantly affects blood glucose levels.  
+2. Examine whether age group influences blood glucose levels.  
+3. Assess if an interaction exists between treatment type and age group in influencing blood glucose levels.
+
+---
+
+## 🔬 Study Design
+
+### 1. Factors and Levels
+| Factor | Description | Levels |
+|--------|--------------|--------|
+| Treatment Type | Type of diabetes management | Oral medication, Insulin therapy, Combined therapy |
+| Age Group | Patient age categories | 18–30 years, 31–50 years, 51–70 years |
+
+Each combination was tested with **5 replicates**, yielding **45 total observations**.
+
+---
+
+## ⚙️ Methodology
+
+### 1. Model Specification
+A **3² factorial design** was used.  
+The model is expressed as:
+
+\[
+Y_{ijk} = \mu + \alpha_i + \beta_j + (\alpha\beta)_{ij} + \varepsilon_{ijk}
+\]
+
+Where:
+- \( \mu \): Overall mean  
+- \( \alpha_i \): Effect of Treatment Type  
+- \( \beta_j \): Effect of Age Group  
+- \( (\alpha\beta)_{ij} \): Interaction effect  
+- \( \varepsilon_{ijk} \): Random error term, \( \varepsilon \sim N(0, \sigma^2) \)
+
+### 2. Hypothesis Tests
+| Effect | Null Hypothesis (\(H_0\)) | Alternative (\(H_a\)) |
+|--------|-----------------------------|------------------------|
+| Treatment Type | \( \alpha_1 = \alpha_2 = \alpha_3 = 0 \) | At least one \( \alpha_i \neq 0 \) |
+| Age Group | \( \beta_1 = \beta_2 = \beta_3 = 0 \) | At least one \( \beta_j \neq 0 \) |
+| Interaction | \( (\alpha\beta)_{ij} = 0 \) for all i,j | At least one \( (\alpha\beta)_{ij} \neq 0 \) |
+
+Significance level: **α = 0.05**
+
+---
+
+## 🧮 Statistical Analysis
+
+### F-Ratios
+- For Treatment Type (Factor A):  
+  \[
+  F_A = \frac{MS_A}{MS_E}
+  \]
+- For Age Group (Factor B):  
+  \[
+  F_B = \frac{MS_B}{MS_E}
+  \]
+- For Interaction:  
+  \[
+  F_{AB} = \frac{MS_{AB}}{MS_E}
+  \]
+
+Where each mean square is computed from its corresponding sum of squares (SSA, SSB, SSAB, SSE).
+
+---
+
+## 📊 Results
+
+### Model Summary
+- **F(8, 34) = 3.03**, **p = 0.0111**  
+✅ The overall model is statistically significant at the 5% level.
+
+### ANOVA Findings
+| Source | DF | F-value | P-value | Significance |
+|---------|----|----------|----------|---------------|
+| Treatment Type | 2 | — | < 0.05 | ✅ Significant |
+| Age Group | 2 | — | > 0.05 | ❌ Not significant |
+| Interaction | 4 | — | > 0.05 | ❌ Not significant |
+
+➡ **Only Treatment Type** has a significant main effect on blood glucose levels.  
+➡ No significant interaction effect exists.
+
+---
+
+## 📈 Model Validation
+
+### Normality of Residuals
+The **QQ plot** shows mild deviations from normality, with residuals scattered around the reference line — indicating approximate normal behavior with minor skew.
+
+### Residual vs Predicted Plot
+No major heteroscedastic pattern observed, supporting model adequacy.
+
+---
+
+## 🔍 Post Hoc Analysis
+
+Since Treatment Type was significant, **Tukey’s HSD** test was conducted for pairwise comparisons.
+
+| Comparison | Significance | Interpretation |
+|-------------|--------------|----------------|
+| Treatment 1 vs Treatment 2 | ✅ Significant | Treatment 2 differs notably |
+| Treatment 1 vs Treatment 3 | ❌ Not significant | Similar effect |
+| Treatment 2 vs Treatment 3 | ✅ Significant | Treatment 2 most effective |
+
+**Conclusion from Post Hoc:**  
+- **Treatment 2** significantly differs from both 1 and 3.  
+- **Treatments 1 and 3** do not differ significantly.
+
+---
+
+## 🧠 Discussion
+
+- The ANOVA confirmed **treatment type** significantly affects blood glucose levels.  
+- **Age group** and **interaction effects** were not significant.  
+- The model fit was strong (p < 0.05).  
+- The residual plots indicated the model assumptions were reasonably satisfied.
+
+---
+
+## 🧾 Conclusion
+
+This study demonstrates that:
+- Treatment type has a statistically significant effect on post-treatment glucose levels.  
+- No evidence suggests that patient age group or the interaction between age and treatment type affects glucose levels.  
+- Post hoc results highlight that **Treatment 2** produces the most distinct (and likely most effective) glucose control outcome.
+
+**Implications:**  
+These findings underscore the importance of tailoring treatment strategies based primarily on treatment modality rather than age.
+
+---
+
+## 💻 Appendix: SAS Script Example
+
+```sas
+/* Factorial ANOVA Model */
+PROC GLM DATA=glucose_data;
+  CLASS Treatment AgeGroup;
+  MODEL GlucoseLevel = Treatment|AgeGroup;
+  MEANS Treatment / TUKEY;
+  PLOT RESIDUAL.*PREDICTED;
+RUN;
+QUIT;
